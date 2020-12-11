@@ -1,0 +1,46 @@
+repository = {String... names ->
+    for (final String name : names) {
+        final String value = repositoryMap.get(sanitize(name))
+
+        repositories.maven {
+            url = value == null ? name : value
+        }
+    }
+}
+
+resolve = {String version = null, Object dependency ->
+    if (dependency instanceof String) {
+        String value = artifactMap.get(sanitize(dependency))
+
+        if (value) {
+            if (version) {
+            }
+
+            return value
+        }
+
+        throw new IllegalArgumentException(dependency)
+    }
+
+    return dependency
+}
+
+bloated = {Object dependency ->
+    return dependencies.modApi(resolve(dependency)) {
+        exclude(module: "fabric-api")
+    }
+}
+
+bloatedInclude = {Object dependency ->
+    return dependencies.include(bloated(dependency))
+}
+
+intransitive = {Object dependency ->
+    return dependencies.modApi(resolve(dependency)) {
+        transitive = false
+    }
+}
+
+intransitiveInclude = {Object dependency ->
+    return dependencies.include(intransitive(dependency))
+}

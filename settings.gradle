@@ -1,0 +1,4 @@
+rootProject.name = "spinning-wheel"
+
+include("buildSrc-link")
+include("testproject")

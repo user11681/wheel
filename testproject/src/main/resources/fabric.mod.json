@@ -1,0 +1,10 @@
+{
+    "schemaVersion": 1,
+    "id": "spinningwheel",
+    "version": "${version}",
+    "entrypoints": {
+        "main": [
+            "TestClass"
+        ]
+    }
+}

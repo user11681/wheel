@@ -1,0 +1,13 @@
+plugins {
+    id("spinning-wheel")
+}
+
+project.group = "user11681"
+project.version = "0.0.0"
+
+repositories {
+}
+
+dependencies {
+    intransitive("mod-menu")
+}
