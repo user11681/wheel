@@ -13,15 +13,23 @@ jobs:
         with:
           java-version: 1.8
 
-      uses: eskatos/gradle-command-action@v1.3.2
-      with:
-        gradle-version: wrapper
-        arguments: build --stacktrace
+      - name: build
+        uses: eskatos/gradle-command-action@v1.3.2
+        with:
+          gradle-version: wrapper
+          arguments: build --stacktrace
 
-      uses: eskatos/gradle-command-action@v1.3.2
-      with:
-        gradle-version: wrapper
-        arguments: :wheel:bintrayUpload --stacktrace
-      env:
-        BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
-        BINTRAY_API_KEY: ${{ secrets.BINTRAY_API_KEY }}
+      - name: publish
+        uses: eskatos/gradle-command-action@v1.3.2
+        with:
+          gradle-version: wrapper
+          arguments: publish --stacktrace
+
+      - name: upload
+        uses: eskatos/gradle-command-action@v1.3.2
+        with:
+          gradle-version: wrapper
+          arguments: :wheel:bintrayUpload --stacktrace
+        env:
+          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+          BINTRAY_API_KEY: ${{ secrets.BINTRAY_API_KEY }}
