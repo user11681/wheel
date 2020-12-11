@@ -1,4 +1,4 @@
-package user11681.spinningwheel.dependency.configuration;
+package user11681.wheel.dependency.configuration;
 
 import java.util.Map;
 

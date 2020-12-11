@@ -1,4 +1,4 @@
-package user11681.spinningwheel.dependency;
+package user11681.wheel.dependency;
 
 import java.util.Map;
 
@@ -11,13 +11,13 @@ import org.gradle.api.internal.artifacts.DefaultDependencyFactory;
 import org.gradle.api.internal.attributes.ImmutableAttributesFactory;
 import org.gradle.api.internal.notations.ProjectDependencyFactory;
 import org.gradle.internal.typeconversion.NotationParser;
-import user11681.spinningwheel.SpinningWheelExtension;
-import user11681.spinningwheel.SpinningWheelPlugin;
+import user11681.wheel.ProjectHandler;
+import user11681.wheel.WheelExtension;
 
-public class SpinningWheelDependencyFactory extends DefaultDependencyFactory {
-    public static final SpinningWheelDependencyFactory dummyInstance = Unsafe.allocateInstance(SpinningWheelDependencyFactory.class);
+public class WheelDependencyFactory extends DefaultDependencyFactory {
+    public static final WheelDependencyFactory dummyInstance = Unsafe.allocateInstance(WheelDependencyFactory.class);
 
-    public SpinningWheelDependencyFactory(
+    public WheelDependencyFactory(
         NotationParser<Object, Dependency> dependencyNotationParser,
         NotationParser<Object, DependencyConstraint> dependencyConstraintNotationParser,
         NotationParser<Object, ClientModule> clientModuleNotationParser,
@@ -62,14 +62,14 @@ public class SpinningWheelDependencyFactory extends DefaultDependencyFactory {
     }
 
     private Object resolve(String dependency) {
-        Object value = SpinningWheelExtension.artifact(dependency);
+        Object value = WheelExtension.artifact(dependency);
 
         if (value != null) {
             return value;
         }
 
         try {
-            return SpinningWheelPlugin.projectsByFactory.get(this).getDependencies().project(Map.of("path", dependency));
+            return ProjectHandler.projectsByFactory.get(this).getDependencies().project(Map.of("path", dependency));
         } catch (Throwable ignored) {}
 
         return dependency;

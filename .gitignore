@@ -6,6 +6,8 @@ out
 
 !/.gitignore
 
+!/.github
+
 !/gradlew
 !/gradlew.bat
 
@@ -14,8 +16,8 @@ out
 
 !/gradle/wrapper/gradle-wrapper.properties
 
-!/publish
-
 !/buildSrc
 !/buildSrc-link
 !/testproject
+
+!/src

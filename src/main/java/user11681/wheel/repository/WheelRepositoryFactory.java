@@ -1,4 +1,4 @@
-package user11681.spinningwheel.repository;
+package user11681.wheel.repository;
 
 import net.gudenau.lib.unsafe.Unsafe;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
@@ -30,10 +30,10 @@ import org.gradle.internal.resource.local.FileStore;
 import org.gradle.internal.resource.local.LocallyAvailableResourceFinder;
 import user11681.reflect.Classes;
 
-public class SpinningWheelRepositoryFactory extends DefaultBaseRepositoryFactory {
-    public static final SpinningWheelRepositoryFactory dummyInstance = Unsafe.allocateInstance(SpinningWheelRepositoryFactory.class);
+public class WheelRepositoryFactory extends DefaultBaseRepositoryFactory {
+    public static final WheelRepositoryFactory dummyInstance = Unsafe.allocateInstance(WheelRepositoryFactory.class);
 
-    public SpinningWheelRepositoryFactory(
+    public WheelRepositoryFactory(
         LocalMavenRepositoryLocator localMavenRepositoryLocator,
         FileResolver fileResolver,
         FileCollectionFactory fileCollectionFactory,
@@ -86,6 +86,6 @@ public class SpinningWheelRepositoryFactory extends DefaultBaseRepositoryFactory
 
     @Override
     public MavenArtifactRepository createMavenRepository() {
-        return Classes.staticCast(super.createMavenRepository(), SpinningWheelMavenArtifactRepository.dummyInstance);
+        return Classes.staticCast(super.createMavenRepository(), WheelMavenArtifactRepository.dummyInstance);
     }
 }

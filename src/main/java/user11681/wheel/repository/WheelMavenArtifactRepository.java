@@ -1,4 +1,4 @@
-package user11681.spinningwheel.repository;
+package user11681.wheel.repository;
 
 import net.gudenau.lib.unsafe.Unsafe;
 import org.gradle.api.artifacts.repositories.AuthenticationContainer;
@@ -21,12 +21,12 @@ import org.gradle.internal.isolation.IsolatableFactory;
 import org.gradle.internal.resource.local.FileResourceRepository;
 import org.gradle.internal.resource.local.FileStore;
 import org.gradle.internal.resource.local.LocallyAvailableResourceFinder;
-import user11681.spinningwheel.SpinningWheelExtension;
+import user11681.wheel.WheelExtension;
 
-public class SpinningWheelMavenArtifactRepository extends DefaultMavenArtifactRepository {
-    public static final SpinningWheelMavenArtifactRepository dummyInstance = Unsafe.allocateInstance(SpinningWheelMavenArtifactRepository.class);
+public class WheelMavenArtifactRepository extends DefaultMavenArtifactRepository {
+    public static final WheelMavenArtifactRepository dummyInstance = Unsafe.allocateInstance(WheelMavenArtifactRepository.class);
 
-    public SpinningWheelMavenArtifactRepository(
+    public WheelMavenArtifactRepository(
         FileResolver fileResolver,
         RepositoryTransportFactory transportFactory,
         LocallyAvailableResourceFinder<ModuleComponentArtifactMetadata> locallyAvailableResourceFinder,
@@ -51,7 +51,7 @@ public class SpinningWheelMavenArtifactRepository extends DefaultMavenArtifactRe
     public void setName(String name) {
         super.setName(name);
 
-        String resolvedURL = SpinningWheelExtension.repository(name);
+        String resolvedURL = WheelExtension.repository(name);
 
         if (resolvedURL != null) {
             this.setUrl(resolvedURL);

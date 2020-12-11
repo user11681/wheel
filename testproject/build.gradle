@@ -1,13 +1,17 @@
 plugins {
-    id("spinning-wheel")
+    id("wheel")
 }
 
 project.group = "user11681"
 project.version = "0.0.0"
 
 repositories {
+    maven {name = "halfof2"}
 }
 
 dependencies {
+    mod("arrp")
+    modInclude("api-screen-handler")
+    bloated("auto-config")
     intransitive("mod-menu")
 }

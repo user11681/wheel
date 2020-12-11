@@ -1,4 +1,4 @@
-package user11681.spinningwheel;
+package user11681.wheel;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -6,12 +6,13 @@ import java.util.Map;
 
 import org.gradle.api.JavaVersion;
 
-public class SpinningWheelExtension {
+public class WheelExtension {
     public String minecraftVersion;
     public String yarnBuild;
 
     public JavaVersion javaVersion = JavaVersion.current();
 
+    public boolean bintray = true;
     public boolean noSpam = true;
 
     private static final Map<String, String> repositoryMap = new HashMap<>(Map.ofEntries(

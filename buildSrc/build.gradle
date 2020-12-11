@@ -1,31 +1,30 @@
-import user11681.reflect.Accessor
-
 buildscript {
     repositories {
-        maven {url = "https://dl.bintray.com/user11681/maven"}
+        jcenter()
     }
 
     dependencies {
-        classpath("net.gudenau.lib:unsafe:+")
-        classpath("user11681:reflect:+")
-        classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:+")
+        classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5")
     }
 }
 
-plugins {
-    id("maven-publish")
-    id("groovy-gradle-plugin")
-}
-
+plugins.apply("maven-publish")
+plugins.apply("java-gradle-plugin")
 plugins.apply("com.jfrog.bintray")
-
-Accessor.putObject((Object) project, "name", "spinning-wheel")
 
 project.group = "user11681"
 project.version = "0.0.0"
 
+gradlePlugin {
+    plugins {
+        wheel {
+            id = "wheel"
+            implementationClass = "user11681.wheel.WheelPlugin"
+        }
+    }
+}
+
 repositories {
-    mavenCentral()
     jcenter()
 
     maven {url = "https://dl.bintray.com/user11681/maven"}
@@ -39,43 +38,4 @@ dependencies {
     api("net.gudenau.lib:unsafe:+")
     api("user11681:reflect:+")
     api("com.jfrog.bintray.gradle:gradle-bintray-plugin:+")
-}
-
-gradlePlugin {
-    plugins {
-        spinningwheel {
-            id = "spinning-wheel"
-            implementationClass = "user11681.spinningwheel.SpinningWheelPlugin"
-        }
-    }
-}
-
-java {
-    withSourcesJar()
-}
-
-bintray {
-    user = System.getenv("BINTRAY_USER")
-    key = System.getenv("BINTRAY_API_KEY")
-    setPublications("spinningwheel")
-    publish = true
-
-    pkg {
-        repo = "maven"
-        name = "spinning-wheel"
-        licenses = ["LGPL-3.0"]
-        vcsUrl = "https://github.com/user11681/spinning-wheel.git"
-
-        version {
-            name = project.version
-            released = new Date()
-            issueTrackerUrl = "https://github.com/user11681/spinning-wheel/issues"
-        }
-    }
-}
-
-publishing {
-    repositories {
-        mavenLocal()
-    }
 }
