@@ -75,7 +75,7 @@ import user11681.wheel.dependency.configuration.IntransitiveDependencySet;
 import user11681.wheel.repository.WheelRepositoryFactory;
 import org.intellij.lang.annotations.Language;
 
-@SuppressWarnings({"ResultOfMethodCallIgnored", "UnstableApiUsage", "ConstantConditions", "unchecked"})
+@SuppressWarnings({"ResultOfMethodCallIgnored", "UnstableApiUsage"})
 public class ProjectHandler {
     public static String latestMinecraftVersion = null;
     public static Map<String, String> latestYarnBuilds = new HashMap<>();
