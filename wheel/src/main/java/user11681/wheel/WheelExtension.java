@@ -3,10 +3,7 @@ package user11681.wheel;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-
 import org.gradle.api.JavaVersion;
-import org.gradle.api.Project;
-
 import user11681.wheel.dependency.DependencyContainer;
 import user11681.wheel.dependency.DependencyEntry;
 
@@ -22,7 +19,7 @@ public class WheelExtension {
 
     public JavaVersion javaVersion = JavaVersion.VERSION_1_8;
 
-    private static final Map<String, String> repositoryMap = new HashMap<>(Map.ofEntries(
+    private static final Map<String, String> repositories = new HashMap<>(Map.ofEntries(
         Map.entry("blamejared", "https://maven.blamejared.com"),
         Map.entry("boundarybreaker", "https://server.bbkr.space/artifactory/libs-release"),
         Map.entry("buildcraft", "https://mod-buildcraft.com/maven"),
@@ -38,7 +35,7 @@ public class WheelExtension {
         Map.entry("wrenchable", "https://dl.bintray.com/zundrel/wrenchable")
     ));
 
-    public static final DependencyContainer dependencies = new DependencyContainer(
+    private static final DependencyContainer dependencies = new DependencyContainer(
         new DependencyEntry("net.fabricmc.fabric-api:fabric-api:latest.release").key("api"),
         new DependencyEntry("net.fabricmc.fabric-api:fabric-api-base:latest.release").key("apibase"),
         new DependencyEntry("net.fabricmc.fabric-api:fabric-blockrenderlayer-v1:latest.release").key("apiblockrenderlayer"),
@@ -99,7 +96,7 @@ public class WheelExtension {
     }
 
     public static String repository(String key) {
-        return key == null ? null : repositoryMap.get(sanitize(key));
+        return key == null ? null : repositories.get(sanitize(key));
     }
 
     public static DependencyEntry dependency(String key) {
@@ -107,7 +104,7 @@ public class WheelExtension {
     }
 
     public static void repository(String key, String value) {
-        repositoryMap.put(key, value);
+        repositories.put(key, value);
     }
 
     public boolean publish() {

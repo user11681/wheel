@@ -27,12 +27,13 @@ repositories {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter:+")
-
-    api("net.fabricmc:fabric-loom:0.6-SNAPSHOT")
     api("net.gudenau.lib:unsafe:+")
     api("user11681:reflect:+")
     api("com.jfrog.bintray.gradle:gradle-bintray-plugin:+")
+
+    compileOnly("net.fabricmc:fabric-loom:0.6-SNAPSHOT")
+
+    testImplementation("org.junit.jupiter:junit-jupiter:+")
 }
 
 java {

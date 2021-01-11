@@ -23,42 +23,30 @@
  */
 package user11681.wheel;
 
+import com.jfrog.bintray.gradle.BintrayExtension;
+import com.jfrog.bintray.gradle.BintrayPlugin;
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.jfrog.bintray.gradle.BintrayExtension;
-import com.jfrog.bintray.gradle.BintrayPlugin;
-import groovy.util.Node;
+import net.fabricmc.loom.LoomGradleExtension;
+import net.fabricmc.loom.LoomGradlePlugin;
+import net.fabricmc.loom.task.RunClientTask;
+import net.fabricmc.loom.task.RunServerTask;
 import net.gudenau.lib.unsafe.Unsafe;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.UnknownTaskException;
-import org.gradle.api.XmlProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.ExcludeRule;
-import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.dsl.ArtifactHandler;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
-import org.gradle.api.artifacts.repositories.FlatDirectoryArtifactRepository;
-import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.api.file.FileCopyDetails;
 import org.gradle.api.initialization.dsl.ScriptHandler;
 import org.gradle.api.invocation.Gradle;
@@ -66,36 +54,23 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.plugins.Convention;
 import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.plugins.JavaLibraryPlugin;
-import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.plugins.PluginManager;
-import org.gradle.api.publish.Publication;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.compile.JavaCompile;
-import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.jvm.tasks.Jar;
 import org.gradle.language.jvm.tasks.ProcessResources;
-import org.gradle.plugins.ide.eclipse.EclipsePlugin;
-import org.gradle.plugins.ide.idea.IdeaPlugin;
-import org.gradle.plugins.ide.idea.model.IdeaModel;
-import org.gradle.plugins.ide.idea.model.IdeaModule;
 import user11681.reflect.Accessor;
 import user11681.reflect.Classes;
-
-import net.fabricmc.loom.api.decompilers.LoomDecompiler;
-import net.fabricmc.loom.decompilers.cfr.FabricCFRDecompiler;
-import net.fabricmc.loom.decompilers.fernflower.FabricFernFlowerDecompiler;
 import user11681.wheel.dependency.WheelDependencyFactory;
-import user11681.wheel.WheelExtension;
 import user11681.wheel.dependency.configuration.BloatedDependencySet;
 import user11681.wheel.dependency.configuration.IntransitiveDependencySet;
-import net.fabricmc.loom.LoomGradleExtension;
 import user11681.wheel.repository.WheelRepositoryFactory;
 
 @SuppressWarnings({"ResultOfMethodCallIgnored", "UnstableApiUsage", "ConstantConditions", "unchecked"})
@@ -120,10 +95,9 @@ public class ProjectHandler {
     public final Logger logger;
     public final Gradle gradle;
     public final ScriptHandler buildScript;
-    public final LoomGradleExtension loom;
     public final WheelExtension extension;
 
-    private final List<LoomDecompiler> decompilers = new ArrayList<>();
+    public LoomGradleExtension loom;
 
     public ProjectHandler(Project project) {
         this.project = project;
@@ -192,7 +166,9 @@ public class ProjectHandler {
     public void handle() {
         currentProject = this.project;
 
+        this.plugins.apply(JavaLibraryPlugin.class);
         this.plugins.apply(MavenPublishPlugin.class);
+        this.plugins.apply(BintrayPlugin.class);
 
         Classes.staticCast(Accessor.getObject(this.repositories, "repositoryFactory"), WheelRepositoryFactory.classPointer);
         Classes.staticCast(Accessor.getObject(this.dependencies, "dependencyFactory"), WheelDependencyFactory.classPointer);
@@ -202,33 +178,11 @@ public class ProjectHandler {
         this.project.beforeEvaluate(ignored -> this.beforeEvaluate());
         this.project.afterEvaluate(ignored -> this.afterEvaluate());
 
-        this.plugins.apply(BintrayPlugin.class);
+        this.plugins.apply(LoomGradlePlugin.class);
 
         this.repositories.mavenLocal();
 
-        this.tasks.getByName("remapJar").doLast((Task remapTask) -> remapTask.getInputs().getFiles().forEach(File::delete));
-        this.tasks.getByName("remapSourcesJar").doLast((Task remapTask) -> remapTask.getInputs().getFiles().forEach(File::delete));
-
         this.configureConfigurations();
-    }
-
-    private void configureConfigurations() {
-        Configuration intransitiveInclude = this.configurations.create("intransitiveInclude");
-        Configuration intransitive = this.configurations.create("intransitive").extendsFrom(intransitiveInclude);
-        Configuration bloatedInclude = this.configurations.create("bloatedInclude");
-        Configuration bloated = this.configurations.create("bloated").extendsFrom(bloatedInclude);
-        Configuration modInclude = this.configurations.create("modInclude").extendsFrom(bloatedInclude, intransitiveInclude);
-        Configuration mod = this.configurations.create("mod").extendsFrom(modInclude, bloated, intransitive);
-        Configuration apiInclude = this.configurations.create("apiInclude");
-
-        Classes.staticCast(Accessor.getObject(bloated, "dependencies"), BloatedDependencySet.classPointer);
-        Classes.staticCast(Accessor.getObject(bloatedInclude, "dependencies"), BloatedDependencySet.classPointer);
-        Classes.staticCast(Accessor.getObject(intransitive, "dependencies"), IntransitiveDependencySet.classPointer);
-        Classes.staticCast(Accessor.getObject(intransitiveInclude, "dependencies"), IntransitiveDependencySet.classPointer);
-
-        this.configurations.getByName("api").extendsFrom(apiInclude);
-        this.configurations.getByName("modApi").extendsFrom(mod);
-        this.configurations.getByName("include").extendsFrom(apiInclude, modInclude);
     }
 
     private void beforeEvaluate() {
@@ -236,13 +190,15 @@ public class ProjectHandler {
     }
 
     private void afterEvaluate() {
+        this.loom = this.extensions.getByType(LoomGradleExtension.class);
+
         this.checkMinecraftVersion();
         this.checkYarnBuild();
 
         this.dependencies.add("minecraft", "com.mojang:minecraft:" + this.extension.minecraftVersion);
         this.dependencies.add("mappings", String.format("net.fabricmc:yarn:%s+build.%s:v2", this.extension.minecraftVersion, this.extension.yarnBuild));
-        this.dependencies.add("modApi", "net.fabricmc:fabric-loader:+");
-        this.dependencies.add("testImplementation", "org.junit.jupiter:junit-jupiter:+");
+        this.dependencies.add("mod", "net.fabricmc:fabric-loader:latest.release");
+        this.dependencies.add("testImplementation", "org.junit.jupiter:junit-jupiter:latest.release");
 
         if (this.extension.noSpam) {
             this.dependencies.add("modApi", "narratoroff");
@@ -264,6 +220,9 @@ public class ProjectHandler {
             task.from("LICENSE");
         }
 
+        this.tasks.getByName("remapJar").doLast((Task remapTask) -> remapTask.getInputs().getFiles().forEach(File::delete));
+        this.tasks.getByName("remapSourcesJar").doLast((Task remapTask) -> remapTask.getInputs().getFiles().forEach(File::delete));
+
         ProcessResources processResources = (ProcessResources) this.tasks.getByName("processResources");
         processResources.getInputs().property("version", this.project.getVersion());
         processResources.filesMatching("fabric.mod.json", (FileCopyDetails details) -> details.expand(new HashMap<>(Map.of("version", project.getVersion()))));
@@ -283,9 +242,9 @@ public class ProjectHandler {
             PublishingExtension publishing = this.extensions.getByType(PublishingExtension.class);
 
             publishing.getPublications().create("maven", MavenPublication.class, (MavenPublication publication) -> {
-                publication.setGroupId((String) this.project.getGroup());
+                publication.setGroupId(String.valueOf(this.project.getGroup()));
                 publication.setArtifactId(this.project.getName());
-                publication.setVersion((String) this.project.getVersion());
+                publication.setVersion(String.valueOf(this.project.getVersion()));
 
                 Task remapJar = this.tasks.getByName("remapJar");
 
@@ -317,5 +276,24 @@ public class ProjectHandler {
                 version.setReleased(new Date().toString());
             }
         }
+    }
+
+    private void configureConfigurations() {
+        Configuration intransitiveInclude = this.configurations.create("intransitiveInclude").setTransitive(false);
+        Configuration intransitive = this.configurations.create("intransitive").extendsFrom(intransitiveInclude).setTransitive(false);
+        Configuration bloatedInclude = this.configurations.create("bloatedInclude");
+        Configuration bloated = this.configurations.create("bloated").extendsFrom(bloatedInclude);
+        Configuration modInclude = this.configurations.create("modInclude").extendsFrom(bloatedInclude, intransitiveInclude);
+        Configuration mod = this.configurations.create("mod").extendsFrom(modInclude, bloated, intransitive);
+        Configuration apiInclude = this.configurations.create("apiInclude");
+
+        Classes.staticCast(Accessor.getObject(bloated, "dependencies"), BloatedDependencySet.classPointer);
+        Classes.staticCast(Accessor.getObject(bloatedInclude, "dependencies"), BloatedDependencySet.classPointer);
+        Classes.staticCast(Accessor.getObject(intransitive, "dependencies"), IntransitiveDependencySet.classPointer);
+        Classes.staticCast(Accessor.getObject(intransitiveInclude, "dependencies"), IntransitiveDependencySet.classPointer);
+
+        this.configurations.getByName("api").extendsFrom(apiInclude);
+        this.configurations.getByName("modApi").extendsFrom(mod);
+        this.configurations.getByName("include").extendsFrom(apiInclude, modInclude);
     }
 }

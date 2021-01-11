@@ -1,4 +1,4 @@
 rootProject.name = "wheel-build"
 
-includeBuild("testproject")
 includeBuild("wheel")
+includeBuild("testproject")
