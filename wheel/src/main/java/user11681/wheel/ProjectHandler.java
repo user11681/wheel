@@ -25,6 +25,7 @@ package user11681.wheel;
 
 import com.jfrog.bintray.gradle.BintrayExtension;
 import com.jfrog.bintray.gradle.BintrayPlugin;
+import com.jfrog.bintray.gradle.tasks.BintrayUploadTask;
 import java.io.File;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -59,21 +60,23 @@ import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.plugins.PluginManager;
+import org.gradle.api.plugins.UnknownPluginException;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
+import org.gradle.api.publish.plugins.PublishingPlugin;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.jvm.tasks.Jar;
 import org.gradle.language.jvm.tasks.ProcessResources;
+import org.intellij.lang.annotations.Language;
 import user11681.reflect.Accessor;
 import user11681.reflect.Classes;
 import user11681.wheel.dependency.WheelDependencyFactory;
 import user11681.wheel.dependency.configuration.BloatedDependencySet;
 import user11681.wheel.dependency.configuration.IntransitiveDependencySet;
 import user11681.wheel.repository.WheelRepositoryFactory;
-import org.intellij.lang.annotations.Language;
 
 @SuppressWarnings({"ResultOfMethodCallIgnored", "UnstableApiUsage"})
 public class ProjectHandler {
@@ -172,6 +175,8 @@ public class ProjectHandler {
         this.plugins.apply(MavenPublishPlugin.class);
         this.plugins.apply(BintrayPlugin.class);
 
+        this.tasks.getByName(BintrayUploadTask.getTASK_NAME()).dependsOn(PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME);
+
         Classes.staticCast(Accessor.getObject(this.repositories, "repositoryFactory"), WheelRepositoryFactory.classPointer);
         Classes.staticCast(Accessor.getObject(this.dependencies, "dependencyFactory"), WheelDependencyFactory.classPointer);
 
@@ -180,7 +185,13 @@ public class ProjectHandler {
         this.project.beforeEvaluate(ignored -> this.beforeEvaluate());
         this.project.afterEvaluate(ignored -> this.afterEvaluate());
 
-        this.plugins.apply(LoomGradlePlugin.class);
+        try {
+            this.plugins.apply("fabric-loom");
+        } catch (UnknownPluginException exception) {
+            this.plugins.apply(LoomGradlePlugin.class);
+//            this.buildScript.getRepositories().maven((MavenArtifactRepository repository) -> repository.setUrl("https://maven.fabricmc.net"));
+//            this.buildScript.getDependencies().add("classpath", "net.fabricmc:fabric-loom:latest.release");
+        }
 
         this.repositories.mavenLocal();
 
@@ -222,8 +233,9 @@ public class ProjectHandler {
             task.from("LICENSE");
         }
 
-        this.tasks.getByName("remapJar").doLast((Task remapTask) -> remapTask.getInputs().getFiles().forEach(File::delete));
-        this.tasks.getByName("remapSourcesJar").doLast((Task remapTask) -> remapTask.getInputs().getFiles().forEach(File::delete));
+        final Task remapJar = this.tasks.getByName("remapJar");
+
+        remapJar.doLast((Task remapTask) -> remapTask.getInputs().getFiles().forEach(File::delete));
 
         ProcessResources processResources = (ProcessResources) this.tasks.getByName("processResources");
         processResources.getInputs().property("version", this.project.getVersion());
@@ -248,8 +260,6 @@ public class ProjectHandler {
                 publication.setArtifactId(this.project.getName());
                 publication.setVersion(String.valueOf(this.project.getVersion()));
 
-                Task remapJar = this.tasks.getByName("remapJar");
-
                 publication.artifact(remapJar).builtBy(remapJar);
                 publication.artifact(this.tasks.getByName("sourcesJar")).builtBy(this.tasks.getByName("remapSourcesJar"));
             });
@@ -272,6 +282,7 @@ public class ProjectHandler {
                 pkg.setRepo("maven");
                 pkg.setName(project.getName());
                 pkg.setLicenses("LGPL-3.0");
+                pkg.setVcsUrl(String.format("https://github.com/%s/%s", project.getGroup(), project.getName()));
 
                 BintrayExtension.VersionConfig version = pkg.getVersion();
                 version.setName(String.valueOf(project.getVersion()));

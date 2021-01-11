@@ -64,7 +64,7 @@ public class WheelExtension {
         new DependencyEntry("curse.maven:charm-318872:3140951").key("charm").repository("cursemaven"),
         new DependencyEntry("me.shedaniel.cloth:config-2:latest.release").key("clothconfig").repository("jcenter"),
         new DependencyEntry("io.github.cottonmc:cotton-resources:latest.release").key("cottonresources").repository("boundarybreaker"),
-        new DependencyEntry("user11681:commonformatting:latest.release").key("commonformatting").repository("user11681"),
+        new DependencyEntry("user11681:common-formatting:latest.release").key("commonformatting").repository("user11681"),
         new DependencyEntry("user11681:dynamicentry:latest.release").key("dynamicentry").repository("user11681"),
         new DependencyEntry("com.github.Chocohead:Fabric-ASM:master-SNAPSHOT").key("fabricasm").repository("jitpack"),
         new DependencyEntry("curse.maven:moenchantments-320806:3084973").key("moenchantments").repository("cursemaven"),
