@@ -1,0 +1,76 @@
+plugins {
+    id("maven-publish")
+    id("java-gradle-plugin")
+    id("com.jfrog.bintray").version("1.8.5")
+}
+
+project.group = "user11681"
+project.version = "0.0.0"
+
+sourceCompatibility = 15
+targetCompatibility = 15
+
+gradlePlugin {
+    plugins {
+        wheel {
+            id = "wheel"
+            implementationClass = "user11681.wheel.WheelPlugin"
+        }
+    }
+}
+
+repositories {
+    jcenter()
+
+    maven {url = "https://dl.bintray.com/user11681/maven"}
+    maven {url = "https://maven.fabricmc.net"}
+}
+
+dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter:+")
+
+    api("net.fabricmc:fabric-loom:0.6-SNAPSHOT")
+    api("net.gudenau.lib:unsafe:+")
+    api("user11681:reflect:+")
+    api("com.jfrog.bintray.gradle:gradle-bintray-plugin:+")
+}
+
+java {
+    withSourcesJar()
+}
+
+jar {
+    from(project.file("LICENSE"))
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = project.name
+            groupId = project.group
+            version = project.version
+
+            from(components.java)
+        }
+    }
+}
+
+bintray {
+    user = System.getenv("BINTRAY_USER")
+    key = System.getenv("BINTRAY_API_KEY")
+    publications = ["maven"]
+    publish = true
+
+    pkg {
+        repo = "maven"
+        name = project.name
+        licenses = ["LGPL-3.0"]
+        vcsUrl = "https://github.com/user11681/${project.name}.git"
+
+        version {
+            name = project.version
+            released = new Date()
+            issueTrackerUrl = "https://github.com/user11681/${project.name}/issues"
+        }
+    }
+}

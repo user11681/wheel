@@ -1,24 +1,16 @@
 package user11681.wheel.repository;
 
-import net.gudenau.lib.unsafe.Unsafe;
-import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
-import org.gradle.api.internal.CollectionCallbackActionDecorator;
+import org.gradle.api.artifacts.repositories.AuthenticationContainer;
 import org.gradle.api.internal.FeaturePreviews;
-import org.gradle.api.internal.artifacts.ImmutableModuleIdentifierFactory;
-import org.gradle.api.internal.artifacts.ivyservice.IvyContextManager;
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.parser.GradleModuleMetadataParser;
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.parser.MetaDataParser;
-import org.gradle.api.internal.artifacts.mvnsettings.LocalMavenRepositoryLocator;
-import org.gradle.api.internal.artifacts.repositories.DefaultBaseRepositoryFactory;
+import org.gradle.api.internal.artifacts.repositories.DefaultMavenArtifactRepository;
 import org.gradle.api.internal.artifacts.repositories.DefaultUrlArtifactRepository;
-import org.gradle.api.internal.artifacts.repositories.metadata.IvyMutableModuleMetadataFactory;
 import org.gradle.api.internal.artifacts.repositories.metadata.MavenMutableModuleMetadataFactory;
 import org.gradle.api.internal.artifacts.repositories.transport.RepositoryTransportFactory;
-import org.gradle.api.internal.file.FileCollectionFactory;
 import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.internal.authentication.AuthenticationSchemeRegistry;
 import org.gradle.internal.component.external.model.ModuleComponentArtifactIdentifier;
 import org.gradle.internal.component.external.model.ModuleComponentArtifactMetadata;
 import org.gradle.internal.component.external.model.maven.MutableMavenModuleResolveMetadata;
@@ -30,53 +22,43 @@ import org.gradle.internal.resource.local.FileStore;
 import org.gradle.internal.resource.local.LocallyAvailableResourceFinder;
 import user11681.reflect.Classes;
 
-public class WheelRepositoryFactory extends DefaultBaseRepositoryFactory {
-    public static final WheelRepositoryFactory dummyInstance = Unsafe.allocateInstance(WheelRepositoryFactory.class);
+import user11681.wheel.WheelExtension;
 
-    public WheelRepositoryFactory(
-        LocalMavenRepositoryLocator localMavenRepositoryLocator,
+public class WheelMavenArtifactRepository extends DefaultMavenArtifactRepository {
+    public static final long classPointer = Classes.getClassPointer(WheelMavenArtifactRepository.class);
+
+    public WheelMavenArtifactRepository(
         FileResolver fileResolver,
-        FileCollectionFactory fileCollectionFactory,
         RepositoryTransportFactory transportFactory,
         LocallyAvailableResourceFinder<ModuleComponentArtifactMetadata> locallyAvailableResourceFinder,
+        InstantiatorFactory instantiatorFactory,
         FileStore<ModuleComponentArtifactIdentifier> artifactFileStore,
-        FileStore<String> externalResourcesFileStore,
         MetaDataParser<MutableMavenModuleResolveMetadata> pomParser,
         GradleModuleMetadataParser metadataParser,
-        AuthenticationSchemeRegistry authenticationSchemeRegistry,
-        IvyContextManager ivyContextManager,
-        ImmutableModuleIdentifierFactory moduleIdentifierFactory,
-        InstantiatorFactory instantiatorFactory,
+        AuthenticationContainer authenticationContainer,
+        FileStore<String> resourcesFileStore,
         FileResourceRepository fileResourceRepository,
-        MavenMutableModuleMetadataFactory mavenMetadataFactory,
-        IvyMutableModuleMetadataFactory ivyMetadataFactory,
+        MavenMutableModuleMetadataFactory metadataFactory,
         IsolatableFactory isolatableFactory,
         ObjectFactory objectFactory,
-        CollectionCallbackActionDecorator callbackActionDecorator,
         DefaultUrlArtifactRepository.Factory urlArtifactRepositoryFactory,
         ChecksumService checksumService,
         ProviderFactory providerFactory,
         FeaturePreviews featurePreviews) {
         super(
-            localMavenRepositoryLocator,
             fileResolver,
-            fileCollectionFactory,
             transportFactory,
             locallyAvailableResourceFinder,
+            instantiatorFactory,
             artifactFileStore,
-            externalResourcesFileStore,
             pomParser,
             metadataParser,
-            authenticationSchemeRegistry,
-            ivyContextManager,
-            moduleIdentifierFactory,
-            instantiatorFactory,
+            authenticationContainer,
+            resourcesFileStore,
             fileResourceRepository,
-            mavenMetadataFactory,
-            ivyMetadataFactory,
+            metadataFactory,
             isolatableFactory,
             objectFactory,
-            callbackActionDecorator,
             urlArtifactRepositoryFactory,
             checksumService,
             providerFactory,
@@ -85,7 +67,13 @@ public class WheelRepositoryFactory extends DefaultBaseRepositoryFactory {
     }
 
     @Override
-    public MavenArtifactRepository createMavenRepository() {
-        return Classes.staticCast(super.createMavenRepository(), WheelMavenArtifactRepository.dummyInstance);
+    public void setName(String name) {
+        super.setName(name);
+
+        String resolvedURL = WheelExtension.repository(name);
+
+        if (resolvedURL != null) {
+            this.setUrl(resolvedURL);
+        }
     }
 }

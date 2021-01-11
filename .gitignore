@@ -1,23 +1,8 @@
-/*
 .*
 
 build
 out
+run
 
-!/.gitignore
-
-!/.github
-
-!/gradlew
-!/gradlew.bat
-
-!/build.gradle
-!/settings.gradle
-
-!/gradle/wrapper/gradle-wrapper.properties
-
-!/buildSrc
-!/buildSrc-link
-!/testproject
-
-!/src
+!.gitignore
+!.github

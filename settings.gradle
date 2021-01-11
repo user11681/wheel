@@ -1,3 +1,4 @@
-rootProject.name = "wheel"
+rootProject.name = "wheel-build"
 
-include("testproject")
+includeBuild("testproject")
+includeBuild("wheel")
