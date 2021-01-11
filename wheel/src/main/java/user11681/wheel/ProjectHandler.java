@@ -33,6 +33,7 @@ import java.net.http.HttpResponse;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.fabricmc.loom.LoomGradleExtension;
@@ -72,6 +73,7 @@ import user11681.wheel.dependency.WheelDependencyFactory;
 import user11681.wheel.dependency.configuration.BloatedDependencySet;
 import user11681.wheel.dependency.configuration.IntransitiveDependencySet;
 import user11681.wheel.repository.WheelRepositoryFactory;
+import org.intellij.lang.annotations.Language;
 
 @SuppressWarnings({"ResultOfMethodCallIgnored", "UnstableApiUsage", "ConstantConditions", "unchecked"})
 public class ProjectHandler {
@@ -121,7 +123,7 @@ public class ProjectHandler {
         return project.getRootProject() == project;
     }
 
-    private static String sendGET(String uri) {
+    private static String sendGET(String uri, @Language("RegExp") String pattern, Function<String, String> thing) {
         if (httpClient == null) {
             httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
         }
@@ -129,7 +131,11 @@ public class ProjectHandler {
         HttpRequest request = HttpRequest.newBuilder().GET().uri(URI.create(uri)).build();
 
         try {
-            return httpClient.send(request, HttpResponse.BodyHandlers.ofString()).body();
+            Matcher matcher = Pattern.compile(pattern).matcher(thing.apply(httpClient.send(request, HttpResponse.BodyHandlers.ofString()).body()));
+
+            matcher.find();
+
+            return matcher.group();
         } catch (Throwable throwable) {
             throw Unsafe.throwException(throwable);
         }
@@ -138,11 +144,7 @@ public class ProjectHandler {
     private void checkMinecraftVersion() {
         if (this.extension.minecraftVersion == null) {
             if (latestMinecraftVersion == null) {
-                String body = sendGET("https://meta.fabricmc.net/v2/versions/game");
-                Matcher matcher = Pattern.compile("(?<=\").*(?=\")").matcher(body.substring(body.indexOf(":") + 1));
-
-                matcher.find();
-                latestMinecraftVersion = matcher.group();
+                latestMinecraftVersion = sendGET("https://meta.fabricmc.net/v2/versions/game", "(?<=\").*(?=\")", (String body) -> body.substring(body.indexOf(":") + 1));
             }
 
             this.extension.minecraftVersion = latestMinecraftVersion;
@@ -152,11 +154,11 @@ public class ProjectHandler {
     private void checkYarnBuild() {
         if (this.extension.yarnBuild == null) {
             if (latestYarnBuilds.get(extension.minecraftVersion) == null) {
-                String body = sendGET("https://meta.fabricmc.net/v2/versions/yarn/" + extension.minecraftVersion);
-                Matcher matcher = Pattern.compile("\\d+").matcher(body.substring(body.indexOf("separator")));
-
-                matcher.find();
-                latestYarnBuilds.put(extension.minecraftVersion, matcher.group());
+                latestYarnBuilds.put(extension.minecraftVersion, sendGET(
+                    "https://meta.fabricmc.net/v2/versions/yarn/" + extension.minecraftVersion,
+                    "\\d+",
+                    (String body) -> body.substring(body.indexOf("separator"))
+                ));
             }
 
             this.extension.yarnBuild = latestYarnBuilds.get(extension.minecraftVersion);

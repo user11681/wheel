@@ -32,6 +32,7 @@ dependencies {
     api("com.jfrog.bintray.gradle:gradle-bintray-plugin:+")
 
     compileOnly("net.fabricmc:fabric-loom:0.6-SNAPSHOT")
+    compileOnly("org.jetbrains:annotations:latest.release")
 
     testImplementation("org.junit.jupiter:junit-jupiter:+")
 }
