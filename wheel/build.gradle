@@ -5,7 +5,7 @@ plugins {
 }
 
 project.group = "user11681"
-project.version = "0.0.0"
+project.version = "0.0.0-SNAPSHOT"
 
 sourceCompatibility = 15
 targetCompatibility = 15
@@ -27,14 +27,14 @@ repositories {
 }
 
 dependencies {
-    api("net.gudenau.lib:unsafe:+")
-    api("user11681:reflect:+")
-    api("com.jfrog.bintray.gradle:gradle-bintray-plugin:+")
+    api("net.gudenau.lib:unsafe:latest.release")
+    api("user11681:reflect:latest.release")
+    api("com.jfrog.bintray.gradle:gradle-bintray-plugin:latest.release")
 
     compileOnly("net.fabricmc:fabric-loom:0.6-SNAPSHOT")
     compileOnly("org.jetbrains:annotations:latest.release")
 
-    testImplementation("org.junit.jupiter:junit-jupiter:+")
+    testImplementation("org.junit.jupiter:junit-jupiter:latest.release")
 }
 
 java {
@@ -54,6 +54,10 @@ publishing {
 
             from(components.java)
         }
+    }
+
+    repositories {
+        mavenLocal()
     }
 }
 
