@@ -235,7 +235,7 @@ public class ProjectHandler {
 
         final Task remapJar = this.tasks.getByName("remapJar");
 
-        remapJar.doLast((Task remapTask) -> remapTask.getInputs().getFiles().forEach(File::delete));
+        remapJar.doLast((Task remapTask) -> remapTask.getInputs().getFiles().filter((File file) -> file.getName().endsWith(".jar")).forEach(File::delete));
 
         ProcessResources processResources = (ProcessResources) this.tasks.getByName("processResources");
         processResources.getInputs().property("version", this.project.getVersion());
