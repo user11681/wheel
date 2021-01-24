@@ -78,7 +78,7 @@ public class WheelExtension {
         new DependencyEntry("org.junit.jupiter:junit-jupiter:latest.release").key("junit"),
         new DependencyEntry("com.github.Yoghurt4C:LilTaterReloaded:fabric-1.16-SNAPSHOT").key("liltaterreloaded").repository("jitpack"),
         new DependencyEntry("user11681:limitless:latest.release").key("limitless").repository("user11681"),
-        new DependencyEntry("com.terraformersmc:modmenu:latest.release").key("modmenu").repository("terraformers"),
+        new DependencyEntry("io.github.prospector:modmenu:latest.release").key("modmenu").repository("terraformers"),
         new DependencyEntry("net.earthcomputer:multiconnect:latest.release:api").key("multiconnect").repository("earthcomputer"),
         new DependencyEntry("user11681:narratoroff:latest.release").key("narratoroff").repository("user11681"),
         new DependencyEntry("user11681:noauth:latest.release").key("noauth").repository("user11681"),
