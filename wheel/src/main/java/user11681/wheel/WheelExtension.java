@@ -32,7 +32,8 @@ public class WheelExtension {
         Map.entry("jcenter", "https://jcenter.bintray.com"),
         Map.entry("jitpack", "https://jitpack.io"),
         Map.entry("ladysnake", "https://dl.bintray.com/ladysnake/libs"),
-        Map.entry("terraformers", "https://maven.terraformersmc.com/releases"),
+//        Map.entry("terraformers", "https://maven.terraformersmc.com"),
+        Map.entry("terraformers", "https://maven.fabricmc.net"),
         Map.entry("user11681", "https://dl.bintray.com/user11681/maven"),
         Map.entry("wrenchable", "https://dl.bintray.com/zundrel/wrenchable")
     ));
