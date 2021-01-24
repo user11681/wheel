@@ -80,10 +80,11 @@ import user11681.wheel.repository.WheelRepositoryFactory;
 
 @SuppressWarnings({"ResultOfMethodCallIgnored", "UnstableApiUsage"})
 public class ProjectHandler {
-    public static String latestMinecraftVersion = null;
-    public static Map<String, String> latestYarnBuilds = new HashMap<>();
     public static Project currentProject = null;
 
+    private static final Map<String, String> latestYarnBuilds = new HashMap<>();
+
+    private static String latestMinecraftVersion = null;
     private static HttpClient httpClient = null;
 
     public final Project project;

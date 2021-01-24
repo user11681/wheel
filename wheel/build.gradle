@@ -45,15 +45,19 @@ jar {
     from(project.file("LICENSE"))
 }
 
+tasks.bintrayUpload.doFirst {
+//    HttpClient client = HttpClient.newBuilder().authenticator(Authenticator.)
+}
+
 publishing {
     publications {
-        maven(MavenPublication) {
-            artifactId = project.name
-            groupId = project.group
-            version = project.version
+//        maven(MavenPublication) {
+//            artifactId = project.name
+//            groupId = project.group
+//            version = project.version
 
-            from(components.java)
-        }
+//            from(components.java)
+//        }
     }
 
     repositories {
